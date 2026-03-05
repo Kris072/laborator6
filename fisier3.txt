@@ -1,0 +1,43 @@
+using System;
+
+namespace GadgetManager
+{
+    public class Gadget
+    {
+        public string Denumire { get; set; }
+        public string Categorie { get; set; }
+        public string Brand { get; set; }
+        public decimal Pret { get; set; }
+        public int GarantieLuni { get; set; }
+
+        public Gadget() { }
+
+        public Gadget(string denumire, string categorie, string brand, decimal pret, int garantieLuni)
+        {
+            Denumire = denumire;
+            Categorie = categorie;
+            Brand = brand;
+            Pret = pret;
+            GarantieLuni = garantieLuni;
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (obj == null || GetType() != obj.GetType())
+                return false;
+
+            Gadget other = (Gadget)obj;
+            return Denumire == other.Denumire;
+        }
+
+        public override int GetHashCode()
+        {
+            return Denumire?.GetHashCode() ?? 0;
+        }
+        
+        public override string ToString()
+        {
+            return $"{Denumire} - {Brand} ({Categorie}) - {Pret:F2} lei - {GarantieLuni} luni";
+        }
+    }
+}
