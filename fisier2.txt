@@ -1,1 +1,354 @@
+<Window x:Class="GadgetManager.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Manager Gadgeturi" Height="850" Width="1400"
+        Background="#F5F5F5">
+    <Grid Margin="15">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
 
+        <GroupBox Grid.Row="0" Header="Introducere Date" Padding="15" Margin="0,0,0,15"
+                  Background="White" BorderBrush="#2196F3" BorderThickness="2">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="200"/>
+                    <ColumnDefinition Width="20"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="200"/>
+                    <ColumnDefinition Width="20"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="150"/>
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="10"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <TextBlock Grid.Row="0" Grid.Column="0" Text="Denumire:" VerticalAlignment="Center" 
+                          FontWeight="SemiBold" Margin="0,0,10,0"/>
+                <TextBox x:Name="txtDenumire" Grid.Row="0" Grid.Column="1" Padding="5"/>
+
+                <TextBlock Grid.Row="0" Grid.Column="3" Text="Categorie:" VerticalAlignment="Center" 
+                          FontWeight="SemiBold" Margin="0,0,10,0"/>
+                <TextBox x:Name="txtCategorie" Grid.Row="0" Grid.Column="4" Padding="5"/>
+
+                <TextBlock Grid.Row="0" Grid.Column="6" Text="Brand:" VerticalAlignment="Center" 
+                          FontWeight="SemiBold" Margin="0,0,10,0"/>
+                <TextBox x:Name="txtBrand" Grid.Row="0" Grid.Column="7" Padding="5"/>
+
+                <TextBlock Grid.Row="2" Grid.Column="0" Text="Pret:" VerticalAlignment="Center" 
+                          FontWeight="SemiBold" Margin="0,0,10,0"/>
+                <TextBox x:Name="txtPret" Grid.Row="2" Grid.Column="1" Padding="5" Text="0"/>
+
+                <TextBlock Grid.Row="2" Grid.Column="3" Text="Garantie (luni):" VerticalAlignment="Center" 
+                          FontWeight="SemiBold" Margin="0,0,10,0"/>
+                <TextBox x:Name="txtGarantie" Grid.Row="2" Grid.Column="4" Padding="5" Text="12"/>
+            </Grid>
+        </GroupBox>
+
+        <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,0,0,15">
+            <Button x:Name="btnAdaugaA" Content="Adauga in A" Width="120" Height="35" Margin="5"
+                    Background="#2196F3" Foreground="White" FontWeight="Bold" 
+                    BorderThickness="0" Click="btnAdaugaA_Click">
+                <Button.Resources>
+                    <Style TargetType="Border">
+                        <Setter Property="CornerRadius" Value="5"/>
+                    </Style>
+                </Button.Resources>
+            </Button>
+            <Button x:Name="btnAdaugaB" Content="Adauga in B" Width="120" Height="35" Margin="5"
+                    Background="#4CAF50" Foreground="White" FontWeight="Bold" 
+                    BorderThickness="0" Click="btnAdaugaB_Click">
+                <Button.Resources>
+                    <Style TargetType="Border">
+                        <Setter Property="CornerRadius" Value="5"/>
+                    </Style>
+                </Button.Resources>
+            </Button>
+            <Button x:Name="btnStergeSelectat" Content="Sterge Selectat" Width="120" Height="35" Margin="5"
+                    Background="#F44336" Foreground="White" FontWeight="Bold" 
+                    BorderThickness="0" Click="btnStergeSelectat_Click">
+                <Button.Resources>
+                    <Style TargetType="Border">
+                        <Setter Property="CornerRadius" Value="5"/>
+                    </Style>
+                </Button.Resources>
+            </Button>
+            <Button x:Name="btnGolesteA" Content="Goleste A" Width="120" Height="35" Margin="5"
+                    Background="#FF9800" Foreground="White" FontWeight="Bold" 
+                    BorderThickness="0" Click="btnGolesteA_Click">
+                <Button.Resources>
+                    <Style TargetType="Border">
+                        <Setter Property="CornerRadius" Value="5"/>
+                    </Style>
+                </Button.Resources>
+            </Button>
+            <Button x:Name="btnGolesteB" Content="Goleste B" Width="120" Height="35" Margin="5"
+                    Background="#FF9800" Foreground="White" FontWeight="Bold" 
+                    BorderThickness="0" Click="btnGolesteB_Click">
+                <Button.Resources>
+                    <Style TargetType="Border">
+                        <Setter Property="CornerRadius" Value="5"/>
+                    </Style>
+                </Button.Resources>
+            </Button>
+        </StackPanel>
+
+        <GroupBox Grid.Row="2" Header="Sortare" Padding="10" Margin="0,0,0,10"
+                  Background="White" BorderBrush="#95A5A6" BorderThickness="1">
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                <TextBlock Text="Sorteaza dupa:" VerticalAlignment="Center" Margin="0,0,8,0" FontWeight="SemiBold"/>
+                <ComboBox x:Name="cmbSortare" Width="150" Margin="0,0,15,0">
+                    <ComboBoxItem Content="Denumire (A-Z)" Tag="DenumireAsc"/>
+                    <ComboBoxItem Content="Denumire (Z-A)" Tag="DenumireDesc"/>
+                    <ComboBoxItem Content="Pret crescator" Tag="PretAsc"/>
+                    <ComboBoxItem Content="Pret descrescator" Tag="PretDesc"/>
+                    <ComboBoxItem Content="Garantie crescatoare" Tag="GarantieAsc"/>
+                    <ComboBoxItem Content="Garantie descrescatoare" Tag="GarantieDesc"/>
+                </ComboBox>
+                
+                <TextBlock Text="Aplica pe:" VerticalAlignment="Center" Margin="0,0,8,0" FontWeight="SemiBold"/>
+                <ComboBox x:Name="cmbListaSortare" Width="100" Margin="0,0,10,0">
+                    <ComboBoxItem Content="Lista A" Tag="A" IsSelected="True"/>
+                    <ComboBoxItem Content="Lista B" Tag="B"/>
+                    <ComboBoxItem Content="Rezultat" Tag="R"/>
+                </ComboBox>
+                
+                <Button Content="Sorteaza" Width="100" Height="30" Margin="5,0,0,0"
+                        Background="#34495E" Foreground="White" FontWeight="Bold" BorderThickness="0"
+                        Click="btnSorteaza_Click">
+                    <Button.Resources>
+                        <Style TargetType="Border">
+                            <Setter Property="CornerRadius" Value="3"/>
+                        </Style>
+                    </Button.Resources>
+                </Button>
+            </StackPanel>
+        </GroupBox>
+
+        <GroupBox Grid.Row="3" Header="Grupare" Padding="10" Margin="0,0,0,15"
+                  Background="White" BorderBrush="#27AE60" BorderThickness="1">
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                <TextBlock Text="Filtru de grupare:" VerticalAlignment="Center" Margin="0,0,8,0" FontWeight="SemiBold"/>
+                <ComboBox x:Name="cmbFiltruGrupare" Width="150" Margin="0,0,15,0">
+                    <ComboBoxItem Content="Brand" Tag="Brand" IsSelected="True"/>
+                    <ComboBoxItem Content="Categorie" Tag="Categorie"/>
+                    <ComboBoxItem Content="Interval pret" Tag="Pret"/>
+                </ComboBox>
+                
+                <TextBlock Text="Aplica pe:" VerticalAlignment="Center" Margin="0,0,8,0" FontWeight="SemiBold"/>
+                <ComboBox x:Name="cmbListaGrupare" Width="100" Margin="0,0,10,0">
+                    <ComboBoxItem Content="Lista A" Tag="A" IsSelected="True"/>
+                    <ComboBoxItem Content="Lista B" Tag="B"/>
+                    <ComboBoxItem Content="Reuniune" Tag="R"/>
+                </ComboBox>
+                
+                <Button Content="Grupare" Width="100" Height="30" Margin="5,0,0,0"
+                        Background="#27AE60" Foreground="White" FontWeight="Bold" BorderThickness="0"
+                        Click="btnGrupare_Click">
+                    <Button.Resources>
+                        <Style TargetType="Border">
+                            <Setter Property="CornerRadius" Value="3"/>
+                        </Style>
+                    </Button.Resources>
+                </Button>
+            </StackPanel>
+        </GroupBox>
+
+        <Grid Grid.Row="4">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="10"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="10"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="10"/>
+                <ColumnDefinition Width="250"/>
+            </Grid.ColumnDefinitions>
+
+            <Grid Grid.Column="0">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                
+                <GroupBox Grid.Row="0" Header="Lista A" Padding="5" Background="White" 
+                          BorderBrush="#2196F3" BorderThickness="2">
+                    <ListBox x:Name="lstA" Background="#F0F8FF"/>
+                </GroupBox>
+                
+                <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,8,0,0">
+                    <Button x:Name="btnPrevA" Content="&lt;" Width="35" Height="28" Margin="2"
+                            Background="#7F8C8D" Foreground="White" FontWeight="Bold" BorderThickness="0"
+                            Click="btnPrevA_Click"/>
+                    <TextBlock x:Name="txtPaginaA" Text="Pagina 1 / 1" VerticalAlignment="Center" 
+                               Margin="10,0" FontWeight="SemiBold" MinWidth="150" TextAlignment="Center"/>
+                    <Button x:Name="btnNextA" Content="&gt;" Width="35" Height="28" Margin="2"
+                            Background="#7F8C8D" Foreground="White" FontWeight="Bold" BorderThickness="0"
+                            Click="btnNextA_Click"/>
+                    <ComboBox x:Name="cmbDimensiunePaginaA" Width="90" Margin="15,0,0,0"
+                              SelectionChanged="cmbDimensiunePaginaA_SelectionChanged">
+                        <ComboBoxItem Content="5/pagina" Tag="5"/>
+                        <ComboBoxItem Content="10/pagina" Tag="10" IsSelected="True"/>
+                        <ComboBoxItem Content="20/pagina" Tag="20"/>
+                        <ComboBoxItem Content="Toate" Tag="0"/>
+                    </ComboBox>
+                </StackPanel>
+            </Grid>
+
+            <Grid Grid.Column="2">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                
+                <GroupBox Grid.Row="0" Header="Lista B" Padding="5" Background="White" 
+                          BorderBrush="#4CAF50" BorderThickness="2">
+                    <ListBox x:Name="lstB" Background="#F1F8E9"/>
+                </GroupBox>
+                
+                <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,8,0,0">
+                    <Button x:Name="btnPrevB" Content="&lt;" Width="35" Height="28" Margin="2"
+                            Background="#7F8C8D" Foreground="White" FontWeight="Bold" BorderThickness="0"
+                            Click="btnPrevB_Click"/>
+                    <TextBlock x:Name="txtPaginaB" Text="Pagina 1 / 1" VerticalAlignment="Center" 
+                               Margin="10,0" FontWeight="SemiBold" MinWidth="150" TextAlignment="Center"/>
+                    <Button x:Name="btnNextB" Content="&gt;" Width="35" Height="28" Margin="2"
+                            Background="#7F8C8D" Foreground="White" FontWeight="Bold" BorderThickness="0"
+                            Click="btnNextB_Click"/>
+                    <ComboBox x:Name="cmbDimensiunePaginaB" Width="90" Margin="15,0,0,0"
+                              SelectionChanged="cmbDimensiunePaginaB_SelectionChanged">
+                        <ComboBoxItem Content="5/pagina" Tag="5"/>
+                        <ComboBoxItem Content="10/pagina" Tag="10" IsSelected="True"/>
+                        <ComboBoxItem Content="20/pagina" Tag="20"/>
+                        <ComboBoxItem Content="Toate" Tag="0"/>
+                    </ComboBox>
+                </StackPanel>
+            </Grid>
+
+            <Grid Grid.Column="4">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                
+                <GroupBox Grid.Row="0" Header="Rezultat" Padding="5" Background="White" 
+                          BorderBrush="#9C27B0" BorderThickness="2">
+                    <ListBox x:Name="lstRezultat" Background="#F3E5F5"/>
+                </GroupBox>
+                
+                <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,8,0,0">
+                    <Button x:Name="btnPrevR" Content="&lt;" Width="35" Height="28" Margin="2"
+                            Background="#7F8C8D" Foreground="White" FontWeight="Bold" BorderThickness="0"
+                            Click="btnPrevR_Click"/>
+                    <TextBlock x:Name="txtPaginaR" Text="Pagina 1 / 1" VerticalAlignment="Center" 
+                               Margin="10,0" FontWeight="SemiBold" MinWidth="150" TextAlignment="Center"/>
+                    <Button x:Name="btnNextR" Content="&gt;" Width="35" Height="28" Margin="2"
+                            Background="#7F8C8D" Foreground="White" FontWeight="Bold" BorderThickness="0"
+                            Click="btnNextR_Click"/>
+                    <ComboBox x:Name="cmbDimensiunePaginaR" Width="90" Margin="15,0,0,0"
+                              SelectionChanged="cmbDimensiunePaginaR_SelectionChanged">
+                        <ComboBoxItem Content="5/pagina" Tag="5"/>
+                        <ComboBoxItem Content="10/pagina" Tag="10" IsSelected="True"/>
+                        <ComboBoxItem Content="20/pagina" Tag="20"/>
+                        <ComboBoxItem Content="Toate" Tag="0"/>
+                    </ComboBox>
+                </StackPanel>
+            </Grid>
+
+            <GroupBox Grid.Column="6" Header="Grupare" Padding="10" Background="White" 
+                      BorderBrush="#27AE60" BorderThickness="2">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    
+                    <ScrollViewer Grid.Row="0" VerticalScrollBarVisibility="Auto">
+                        <ItemsControl x:Name="lstGrupare">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Border BorderBrush="#E0E0E0" BorderThickness="1" Margin="0,5,0,5" Padding="8" Background="White">
+                                        <StackPanel>
+                                            <TextBlock Text="{Binding Nume}" FontWeight="Bold" FontSize="13" Margin="0,0,0,5"/>
+                                            <ItemsControl ItemsSource="{Binding Elemente}">
+                                                <ItemsControl.ItemTemplate>
+                                                    <DataTemplate>
+                                                        <TextBlock Text="{Binding}" Margin="5,2,0,2" FontSize="11"/>
+                                                    </DataTemplate>
+                                                </ItemsControl.ItemTemplate>
+                                            </ItemsControl>
+                                        </StackPanel>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </ScrollViewer>
+                    
+                    <TextBlock Grid.Row="1" x:Name="txtTotalGrupare" Text="TOTAL: 0" 
+                               FontWeight="Bold" HorizontalAlignment="Center" Margin="0,10,0,0"/>
+                </Grid>
+            </GroupBox>
+        </Grid>
+
+        <StackPanel Grid.Row="5" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,15,0,0">
+            <Button x:Name="btnReuniune" Content="Reuniune" Width="110" Height="35" Margin="5"
+                    Background="#673AB7" Foreground="White" FontWeight="Bold" 
+                    BorderThickness="0" Click="btnReuniune_Click">
+                <Button.Resources>
+                    <Style TargetType="Border">
+                        <Setter Property="CornerRadius" Value="5"/>
+                    </Style>
+                </Button.Resources>
+            </Button>
+            <Button x:Name="btnIntersectie" Content="Intersectie" Width="110" Height="35" Margin="5"
+                    Background="#3F51B5" Foreground="White" FontWeight="Bold" 
+                    BorderThickness="0" Click="btnIntersectie_Click">
+                <Button.Resources>
+                    <Style TargetType="Border">
+                        <Setter Property="CornerRadius" Value="5"/>
+                    </Style>
+                </Button.Resources>
+            </Button>
+            <Button x:Name="btnDiferentaAB" Content="Diferenta A\B" Width="110" Height="35" Margin="5"
+                    Background="#009688" Foreground="White" FontWeight="Bold" 
+                    BorderThickness="0" Click="btnDiferentaAB_Click">
+                <Button.Resources>
+                    <Style TargetType="Border">
+                        <Setter Property="CornerRadius" Value="5"/>
+                    </Style>
+                </Button.Resources>
+            </Button>
+            <Button x:Name="btnDiferentaBA" Content="Diferenta B\A" Width="110" Height="35" Margin="5"
+                    Background="#00BCD4" Foreground="White" FontWeight="Bold" 
+                    BorderThickness="0" Click="btnDiferentaBA_Click">
+                <Button.Resources>
+                    <Style TargetType="Border">
+                        <Setter Property="CornerRadius" Value="5"/>
+                    </Style>
+                </Button.Resources>
+            </Button>
+            <Button x:Name="btnAgregate" Content="Agregate" Width="110" Height="35" Margin="5"
+                    Background="#E91E63" Foreground="White" FontWeight="Bold" 
+                    BorderThickness="0" Click="btnAgregate_Click">
+                <Button.Resources>
+                    <Style TargetType="Border">
+                        <Setter Property="CornerRadius" Value="5"/>
+                    </Style>
+                </Button.Resources>
+            </Button>
+        </StackPanel>
+        
+        <TextBlock Grid.Row="6" x:Name="txtStatus" Text="Gata" HorizontalAlignment="Center" 
+                   Margin="0,10,0,5" FontSize="11" Foreground="#7F8C8D" FontWeight="SemiBold"/>
+    </Grid>
+</Window>
