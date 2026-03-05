@@ -1,1 +1,752 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text.RegularExpressions;
+using System.Windows;
+using System.Windows.Controls;
 
+namespace GadgetManager
+{
+    public class GrupareInfo
+    {
+        public string Nume { get; set; }
+        public List<string> Elemente { get; set; }
+    }
+
+    public partial class MainWindow : Window
+    {
+        private List<Gadget> listaA;
+        private List<Gadget> listaB;
+        private List<string> listaRezultat;
+
+        private int paginaCurentaA = 1;
+        private int paginaCurentaB = 1;
+        private int paginaCurentaR = 1;
+
+        private int dimensiunePaginaA = 10;
+        private int dimensiunePaginaB = 10;
+        private int dimensiunePaginaR = 10;
+
+        public MainWindow()
+        {
+            InitializeComponent();
+            
+            listaA = new List<Gadget>();
+            listaB = new List<Gadget>();
+            listaRezultat = new List<string>();
+
+            txtDenumire.TextChanged += ValidareCampuriRealTime;
+            txtCategorie.TextChanged += ValidareCampuriRealTime;
+            txtBrand.TextChanged += ValidareCampuriRealTime;
+            txtPret.TextChanged += ValidareCampuriRealTime;
+            txtGarantie.TextChanged += ValidareCampuriRealTime;
+            
+            ActualizeazaPaginareA();
+            ActualizeazaPaginareB();
+            ActualizeazaPaginareR();
+        }
+
+        private void ValidareCampuriRealTime(object sender, TextChangedEventArgs e)
+        {
+            TextBox textBox = sender as TextBox;
+            if (textBox == null) return;
+
+            if (textBox == txtPret)
+            {
+                if (!string.IsNullOrEmpty(txtPret.Text) && !Regex.IsMatch(txtPret.Text, @"^\d+(\.\d{0,2})?$"))
+                {
+                    txtPret.BorderBrush = System.Windows.Media.Brushes.Red;
+                    txtStatus.Text = "Pretul trebuie sa fie un numar valid";
+                }
+                else
+                {
+                    txtPret.BorderBrush = System.Windows.Media.Brushes.Gray;
+                    txtStatus.Text = "Gata";
+                }
+            }
+            else if (textBox == txtGarantie)
+            {
+                if (!string.IsNullOrEmpty(txtGarantie.Text) && !Regex.IsMatch(txtGarantie.Text, @"^\d+$"))
+                {
+                    txtGarantie.BorderBrush = System.Windows.Media.Brushes.Red;
+                    txtStatus.Text = "Garantia trebuie sa fie un numar intreg";
+                }
+                else
+                {
+                    txtGarantie.BorderBrush = System.Windows.Media.Brushes.Gray;
+                    txtStatus.Text = "Gata";
+                }
+            }
+            else if (textBox == txtDenumire || textBox == txtCategorie || textBox == txtBrand)
+            {
+                if (textBox.Text.Length > 50)
+                {
+                    textBox.BorderBrush = System.Windows.Media.Brushes.Orange;
+                    txtStatus.Text = "Textul este prea lung (max 50 caractere)";
+                }
+                else
+                {
+                    textBox.BorderBrush = System.Windows.Media.Brushes.Gray;
+                    txtStatus.Text = "Gata";
+                }
+            }
+        }
+
+        private void btnAdaugaA_Click(object sender, RoutedEventArgs e)
+        {
+            if (ValidareDate())
+            {
+                if (VerificaDuplicat(listaA))
+                {
+                    MessageBox.Show("Exista deja un gadget cu aceasta denumire in Lista A!", "Duplicat", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return;
+                }
+
+                listaA.Add(CreareGadget());
+                ActualizeazaPaginareA();
+                CurataCampuri();
+                txtStatus.Text = "Gadget adaugat in Lista A";
+            }
+        }
+
+        private void btnAdaugaB_Click(object sender, RoutedEventArgs e)
+        {
+            if (ValidareDate())
+            {
+                if (VerificaDuplicat(listaB))
+                {
+                    MessageBox.Show("Exista deja un gadget cu aceasta denumire in Lista B!", "Duplicat", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return;
+                }
+
+                listaB.Add(CreareGadget());
+                ActualizeazaPaginareB();
+                CurataCampuri();
+                txtStatus.Text = "Gadget adaugat in Lista B";
+            }
+        }
+
+        private bool VerificaDuplicat(List<Gadget> lista)
+        {
+            return lista.Any(g => g.Denumire.Equals(txtDenumire.Text.Trim(), StringComparison.OrdinalIgnoreCase));
+        }
+
+        private bool ValidareDate()
+        {
+            if (string.IsNullOrWhiteSpace(txtDenumire.Text))
+            {
+                MessageBox.Show("Introduceti denumirea!", "Validare", MessageBoxButton.OK, MessageBoxImage.Warning);
+                txtDenumire.Focus();
+                return false;
+            }
+
+            if (txtDenumire.Text.Trim().Length < 3)
+            {
+                MessageBox.Show("Denumirea trebuie sa aiba cel putin 3 caractere!", "Validare", MessageBoxButton.OK, MessageBoxImage.Warning);
+                txtDenumire.Focus();
+                return false;
+            }
+
+            if (txtDenumire.Text.Trim().Length > 50)
+            {
+                MessageBox.Show("Denumirea nu poate depasi 50 de caractere!", "Validare", MessageBoxButton.OK, MessageBoxImage.Warning);
+                txtDenumire.Focus();
+                return false;
+            }
+
+            if (string.IsNullOrWhiteSpace(txtCategorie.Text))
+            {
+                MessageBox.Show("Introduceti categoria!", "Validare", MessageBoxButton.OK, MessageBoxImage.Warning);
+                txtCategorie.Focus();
+                return false;
+            }
+
+            if (txtCategorie.Text.Trim().Length < 3)
+            {
+                MessageBox.Show("Categoria trebuie sa aiba cel putin 3 caractere!", "Validare", MessageBoxButton.OK, MessageBoxImage.Warning);
+                txtCategorie.Focus();
+                return false;
+            }
+
+            if (string.IsNullOrWhiteSpace(txtBrand.Text))
+            {
+                MessageBox.Show("Introduceti brandul!", "Validare", MessageBoxButton.OK, MessageBoxImage.Warning);
+                txtBrand.Focus();
+                return false;
+            }
+
+            if (txtBrand.Text.Trim().Length < 2)
+            {
+                MessageBox.Show("Brandul trebuie sa aiba cel putin 2 caractere!", "Validare", MessageBoxButton.OK, MessageBoxImage.Warning);
+                txtBrand.Focus();
+                return false;
+            }
+
+            decimal pret;
+            if (!decimal.TryParse(txtPret.Text, out pret))
+            {
+                MessageBox.Show("Introduceti un pret valid!", "Validare", MessageBoxButton.OK, MessageBoxImage.Warning);
+                txtPret.Focus();
+                return false;
+            }
+
+            if (pret < 0)
+            {
+                MessageBox.Show("Pretul nu poate fi negativ!", "Validare", MessageBoxButton.OK, MessageBoxImage.Warning);
+                txtPret.Focus();
+                return false;
+            }
+
+            if (pret > 100000)
+            {
+                MessageBox.Show("Pretul este prea mare (max 100,000 lei)!", "Validare", MessageBoxButton.OK, MessageBoxImage.Warning);
+                txtPret.Focus();
+                return false;
+            }
+
+            int garantie;
+            if (!int.TryParse(txtGarantie.Text, out garantie))
+            {
+                MessageBox.Show("Introduceti o garantie valida!", "Validare", MessageBoxButton.OK, MessageBoxImage.Warning);
+                txtGarantie.Focus();
+                return false;
+            }
+
+            if (garantie < 0)
+            {
+                MessageBox.Show("Garantia nu poate fi negativa!", "Validare", MessageBoxButton.OK, MessageBoxImage.Warning);
+                txtGarantie.Focus();
+                return false;
+            }
+
+            if (garantie > 120)
+            {
+                MessageBox.Show("Garantia nu poate depasi 120 de luni!", "Validare", MessageBoxButton.OK, MessageBoxImage.Warning);
+                txtGarantie.Focus();
+                return false;
+            }
+
+            return true;
+        }
+
+        private Gadget CreareGadget()
+        {
+            return new Gadget(
+                txtDenumire.Text.Trim(),
+                txtCategorie.Text.Trim(),
+                txtBrand.Text.Trim(),
+                decimal.Parse(txtPret.Text),
+                int.Parse(txtGarantie.Text)
+            );
+        }
+
+        private void CurataCampuri()
+        {
+            txtDenumire.Clear();
+            txtCategorie.Clear();
+            txtBrand.Clear();
+            txtPret.Text = "0";
+            txtGarantie.Text = "12";
+
+            txtDenumire.BorderBrush = System.Windows.Media.Brushes.Gray;
+            txtCategorie.BorderBrush = System.Windows.Media.Brushes.Gray;
+            txtBrand.BorderBrush = System.Windows.Media.Brushes.Gray;
+            txtPret.BorderBrush = System.Windows.Media.Brushes.Gray;
+            txtGarantie.BorderBrush = System.Windows.Media.Brushes.Gray;
+
+            txtDenumire.Focus();
+        }
+
+        private void ActualizeazaPaginareA()
+        {
+            if (listaA == null)
+            {
+                listaA = new List<Gadget>();
+            }
+            
+            int totalPagini = dimensiunePaginaA > 0 ? (int)Math.Ceiling((double)listaA.Count / dimensiunePaginaA) : 1;
+            if (totalPagini == 0) totalPagini = 1;
+
+            if (paginaCurentaA > totalPagini) paginaCurentaA = totalPagini;
+
+            var listaPaginata = dimensiunePaginaA > 0
+                ? listaA.Skip((paginaCurentaA - 1) * dimensiunePaginaA).Take(dimensiunePaginaA).ToList()
+                : listaA.ToList();
+
+            lstA.ItemsSource = null;
+            lstA.ItemsSource = listaPaginata;
+
+            txtPaginaA.Text = $"Pagina {paginaCurentaA} / {totalPagini} (Total: {listaA.Count})";
+
+            btnPrevA.IsEnabled = paginaCurentaA > 1;
+            btnNextA.IsEnabled = paginaCurentaA < totalPagini;
+        }
+
+        private void ActualizeazaPaginareB()
+        {
+            if (listaB == null)
+            {
+                listaB = new List<Gadget>();
+            }
+            
+            int totalPagini = dimensiunePaginaB > 0 ? (int)Math.Ceiling((double)listaB.Count / dimensiunePaginaB) : 1;
+            if (totalPagini == 0) totalPagini = 1;
+
+            if (paginaCurentaB > totalPagini) paginaCurentaB = totalPagini;
+
+            var listaPaginata = dimensiunePaginaB > 0
+                ? listaB.Skip((paginaCurentaB - 1) * dimensiunePaginaB).Take(dimensiunePaginaB).ToList()
+                : listaB.ToList();
+
+            lstB.ItemsSource = null;
+            lstB.ItemsSource = listaPaginata;
+
+            txtPaginaB.Text = $"Pagina {paginaCurentaB} / {totalPagini} (Total: {listaB.Count})";
+
+            btnPrevB.IsEnabled = paginaCurentaB > 1;
+            btnNextB.IsEnabled = paginaCurentaB < totalPagini;
+        }
+
+        private void ActualizeazaPaginareR()
+        {
+            if (listaRezultat == null)
+            {
+                listaRezultat = new List<string>();
+            }
+            
+            int totalPagini = dimensiunePaginaR > 0 ? (int)Math.Ceiling((double)listaRezultat.Count / dimensiunePaginaR) : 1;
+            if (totalPagini == 0) totalPagini = 1;
+
+            if (paginaCurentaR > totalPagini) paginaCurentaR = totalPagini;
+
+            var listaPaginata = dimensiunePaginaR > 0
+                ? listaRezultat.Skip((paginaCurentaR - 1) * dimensiunePaginaR).Take(dimensiunePaginaR).ToList()
+                : listaRezultat.ToList();
+
+            lstRezultat.ItemsSource = null;
+            lstRezultat.ItemsSource = listaPaginata;
+
+            txtPaginaR.Text = $"Pagina {paginaCurentaR} / {totalPagini} (Total: {listaRezultat.Count})";
+
+            btnPrevR.IsEnabled = paginaCurentaR > 1;
+            btnNextR.IsEnabled = paginaCurentaR < totalPagini;
+        }
+
+        private void btnPrevA_Click(object sender, RoutedEventArgs e)
+        {
+            if (paginaCurentaA > 1)
+            {
+                paginaCurentaA--;
+                ActualizeazaPaginareA();
+            }
+        }
+
+        private void btnNextA_Click(object sender, RoutedEventArgs e)
+        {
+            int totalPagini = dimensiunePaginaA > 0 ? (int)Math.Ceiling((double)listaA.Count / dimensiunePaginaA) : 1;
+            if (paginaCurentaA < totalPagini)
+            {
+                paginaCurentaA++;
+                ActualizeazaPaginareA();
+            }
+        }
+
+        private void btnPrevB_Click(object sender, RoutedEventArgs e)
+        {
+            if (paginaCurentaB > 1)
+            {
+                paginaCurentaB--;
+                ActualizeazaPaginareB();
+            }
+        }
+
+        private void btnNextB_Click(object sender, RoutedEventArgs e)
+        {
+            int totalPagini = dimensiunePaginaB > 0 ? (int)Math.Ceiling((double)listaB.Count / dimensiunePaginaB) : 1;
+            if (paginaCurentaB < totalPagini)
+            {
+                paginaCurentaB++;
+                ActualizeazaPaginareB();
+            }
+        }
+
+        private void btnPrevR_Click(object sender, RoutedEventArgs e)
+        {
+            if (paginaCurentaR > 1)
+            {
+                paginaCurentaR--;
+                ActualizeazaPaginareR();
+            }
+        }
+
+        private void btnNextR_Click(object sender, RoutedEventArgs e)
+        {
+            int totalPagini = dimensiunePaginaR > 0 ? (int)Math.Ceiling((double)listaRezultat.Count / dimensiunePaginaR) : 1;
+            if (paginaCurentaR < totalPagini)
+            {
+                paginaCurentaR++;
+                ActualizeazaPaginareR();
+            }
+        }
+
+        private void cmbDimensiunePaginaA_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (cmbDimensiunePaginaA.SelectedItem != null)
+            {
+                dimensiunePaginaA = int.Parse((cmbDimensiunePaginaA.SelectedItem as ComboBoxItem).Tag.ToString());
+                paginaCurentaA = 1;
+                ActualizeazaPaginareA();
+            }
+        }
+
+        private void cmbDimensiunePaginaB_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (cmbDimensiunePaginaB.SelectedItem != null)
+            {
+                dimensiunePaginaB = int.Parse((cmbDimensiunePaginaB.SelectedItem as ComboBoxItem).Tag.ToString());
+                paginaCurentaB = 1;
+                ActualizeazaPaginareB();
+            }
+        }
+
+        private void cmbDimensiunePaginaR_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (cmbDimensiunePaginaR.SelectedItem != null)
+            {
+                dimensiunePaginaR = int.Parse((cmbDimensiunePaginaR.SelectedItem as ComboBoxItem).Tag.ToString());
+                paginaCurentaR = 1;
+                ActualizeazaPaginareR();
+            }
+        }
+
+        private void btnSorteaza_Click(object sender, RoutedEventArgs e)
+        {
+            if (cmbSortare.SelectedItem == null)
+            {
+                MessageBox.Show("Selectati un criteriu de sortare!", "Info", MessageBoxButton.OK, MessageBoxImage.Information);
+                return;
+            }
+
+            string criteriu = (cmbSortare.SelectedItem as ComboBoxItem).Tag.ToString();
+            string listaSelectata = (cmbListaSortare.SelectedItem as ComboBoxItem).Tag.ToString();
+
+            if (listaSelectata == "A")
+            {
+                SorteazaListaA(criteriu);
+                txtStatus.Text = "Lista A sortata";
+            }
+            else if (listaSelectata == "B")
+            {
+                SorteazaListaB(criteriu);
+                txtStatus.Text = "Lista B sortata";
+            }
+            else if (listaSelectata == "R")
+            {
+                MessageBox.Show("Sortarea nu este disponibila pentru rezultat!", "Info", MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+        }
+
+        private void SorteazaListaA(string criteriu)
+        {
+            switch (criteriu)
+            {
+                case "DenumireAsc":
+                    listaA = listaA.OrderBy(g => g.Denumire).ToList();
+                    break;
+                case "DenumireDesc":
+                    listaA = listaA.OrderByDescending(g => g.Denumire).ToList();
+                    break;
+                case "PretAsc":
+                    listaA = listaA.OrderBy(g => g.Pret).ToList();
+                    break;
+                case "PretDesc":
+                    listaA = listaA.OrderByDescending(g => g.Pret).ToList();
+                    break;
+                case "GarantieAsc":
+                    listaA = listaA.OrderBy(g => g.GarantieLuni).ToList();
+                    break;
+                case "GarantieDesc":
+                    listaA = listaA.OrderByDescending(g => g.GarantieLuni).ToList();
+                    break;
+            }
+            paginaCurentaA = 1;
+            ActualizeazaPaginareA();
+        }
+
+        private void SorteazaListaB(string criteriu)
+        {
+            switch (criteriu)
+            {
+                case "DenumireAsc":
+                    listaB = listaB.OrderBy(g => g.Denumire).ToList();
+                    break;
+                case "DenumireDesc":
+                    listaB = listaB.OrderByDescending(g => g.Denumire).ToList();
+                    break;
+                case "PretAsc":
+                    listaB = listaB.OrderBy(g => g.Pret).ToList();
+                    break;
+                case "PretDesc":
+                    listaB = listaB.OrderByDescending(g => g.Pret).ToList();
+                    break;
+                case "GarantieAsc":
+                    listaB = listaB.OrderBy(g => g.GarantieLuni).ToList();
+                    break;
+                case "GarantieDesc":
+                    listaB = listaB.OrderByDescending(g => g.GarantieLuni).ToList();
+                    break;
+            }
+            paginaCurentaB = 1;
+            ActualizeazaPaginareB();
+        }
+
+        private void btnGrupare_Click(object sender, RoutedEventArgs e)
+        {
+            if (cmbFiltruGrupare.SelectedItem == null)
+            {
+                MessageBox.Show("Selectati un criteriu de grupare!", "Info", MessageBoxButton.OK, MessageBoxImage.Information);
+                return;
+            }
+
+            string criteriu = (cmbFiltruGrupare.SelectedItem as ComboBoxItem).Tag.ToString();
+            string listaSelectata = (cmbListaGrupare.SelectedItem as ComboBoxItem).Tag.ToString();
+
+            List<Gadget> listaDeGrupat = new List<Gadget>();
+
+            if (listaSelectata == "A")
+            {
+                listaDeGrupat = listaA.ToList();
+            }
+            else if (listaSelectata == "B")
+            {
+                listaDeGrupat = listaB.ToList();
+            }
+            else if (listaSelectata == "R")
+            {
+                var reuniune = listaA.Union(listaB).ToList();
+                listaDeGrupat = reuniune;
+            }
+
+            if (listaDeGrupat.Count == 0)
+            {
+                MessageBox.Show("Nu exista date pentru grupare!", "Info", MessageBoxButton.OK, MessageBoxImage.Information);
+                return;
+            }
+
+            List<GrupareInfo> grupuri = new List<GrupareInfo>();
+
+            if (criteriu == "Brand")
+            {
+                var grupate = listaDeGrupat.GroupBy(g => g.Brand).OrderBy(gr => gr.Key);
+                foreach (var grup in grupate)
+                {
+                    grupuri.Add(new GrupareInfo
+                    {
+                        Nume = $"{grup.Key}: {grup.Count()}",
+                        Elemente = grup.Select(g => g.Denumire).ToList()
+                    });
+                }
+            }
+            else if (criteriu == "Categorie")
+            {
+                var grupate = listaDeGrupat.GroupBy(g => g.Categorie).OrderBy(gr => gr.Key);
+                foreach (var grup in grupate)
+                {
+                    grupuri.Add(new GrupareInfo
+                    {
+                        Nume = $"{grup.Key}: {grup.Count()}",
+                        Elemente = grup.Select(g => g.Denumire).ToList()
+                    });
+                }
+            }
+            else if (criteriu == "Pret")
+            {
+                var grupate = listaDeGrupat.GroupBy(g =>
+                {
+                    if (g.Pret < 500) return "0-500 lei";
+                    else if (g.Pret < 1000) return "500-1000 lei";
+                    else if (g.Pret < 2000) return "1000-2000 lei";
+                    else return "2000+ lei";
+                }).OrderBy(gr => gr.Key);
+
+                foreach (var grup in grupate)
+                {
+                    grupuri.Add(new GrupareInfo
+                    {
+                        Nume = $"{grup.Key}: {grup.Count()}",
+                        Elemente = grup.Select(g => $"{g.Denumire} ({g.Pret:F2} lei)").ToList()
+                    });
+                }
+            }
+
+            lstGrupare.ItemsSource = grupuri;
+            txtTotalGrupare.Text = $"TOTAL: {listaDeGrupat.Count}";
+            txtStatus.Text = $"Grupare realizata: {grupuri.Count} grupuri";
+        }
+
+        private void btnStergeSelectat_Click(object sender, RoutedEventArgs e)
+        {
+            if (lstA.SelectedItem != null)
+            {
+                listaA.Remove((Gadget)lstA.SelectedItem);
+                ActualizeazaPaginareA();
+                txtStatus.Text = "Element sters din Lista A";
+            }
+            else if (lstB.SelectedItem != null)
+            {
+                listaB.Remove((Gadget)lstB.SelectedItem);
+                ActualizeazaPaginareB();
+                txtStatus.Text = "Element sters din Lista B";
+            }
+            else
+            {
+                MessageBox.Show("Selectati un element din Lista A sau B!", "Info", MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+        }
+
+        private void btnGolesteA_Click(object sender, RoutedEventArgs e)
+        {
+            if (listaA.Count == 0)
+            {
+                MessageBox.Show("Lista A este deja goala!", "Info", MessageBoxButton.OK, MessageBoxImage.Information);
+                return;
+            }
+
+            var result = MessageBox.Show("Sigur doriti sa goliti Lista A?", "Confirmare", MessageBoxButton.YesNo, MessageBoxImage.Question);
+            if (result == MessageBoxResult.Yes)
+            {
+                listaA.Clear();
+                paginaCurentaA = 1;
+                ActualizeazaPaginareA();
+                txtStatus.Text = "Lista A a fost golita";
+            }
+        }
+
+        private void btnGolesteB_Click(object sender, RoutedEventArgs e)
+        {
+            if (listaB.Count == 0)
+            {
+                MessageBox.Show("Lista B este deja goala!", "Info", MessageBoxButton.OK, MessageBoxImage.Information);
+                return;
+            }
+
+            var result = MessageBox.Show("Sigur doriti sa goliti Lista B?", "Confirmare", MessageBoxButton.YesNo, MessageBoxImage.Question);
+            if (result == MessageBoxResult.Yes)
+            {
+                listaB.Clear();
+                paginaCurentaB = 1;
+                ActualizeazaPaginareB();
+                txtStatus.Text = "Lista B a fost golita";
+            }
+        }
+
+        private void btnReuniune_Click(object sender, RoutedEventArgs e)
+        {
+            var rezultat = listaA.Union(listaB).ToList();
+            
+            listaRezultat = rezultat.Select(g => 
+                $"{g.Denumire} - {g.Brand} - {g.Pret:F2} lei - {g.GarantieLuni} luni"
+            ).ToList();
+            
+            paginaCurentaR = 1;
+            ActualizeazaPaginareR();
+
+            txtStatus.Text = $"Reuniune: {rezultat.Count} elemente";
+            MessageBox.Show($"Reuniune: {rezultat.Count} elemente gasite", "Rezultat", MessageBoxButton.OK, MessageBoxImage.Information);
+        }
+
+        private void btnIntersectie_Click(object sender, RoutedEventArgs e)
+        {
+            var rezultat = listaA.Intersect(listaB).ToList();
+            
+            listaRezultat = rezultat.Select(g => 
+                $"{g.Denumire} - {g.Brand} - {g.Pret:F2} lei - {g.GarantieLuni} luni"
+            ).ToList();
+            
+            paginaCurentaR = 1;
+            ActualizeazaPaginareR();
+
+            txtStatus.Text = $"Intersectie: {rezultat.Count} elemente";
+            MessageBox.Show($"Intersectie: {rezultat.Count} elemente comune", "Rezultat", MessageBoxButton.OK, MessageBoxImage.Information);
+        }
+
+        private void btnDiferentaAB_Click(object sender, RoutedEventArgs e)
+        {
+            var rezultat = listaA.Except(listaB).ToList();
+            
+            listaRezultat = rezultat.Select(g => 
+                $"{g.Denumire} - {g.Brand} - {g.Pret:F2} lei - {g.GarantieLuni} luni"
+            ).ToList();
+            
+            paginaCurentaR = 1;
+            ActualizeazaPaginareR();
+
+            txtStatus.Text = $"Diferenta A\\B: {rezultat.Count} elemente";
+            MessageBox.Show($"Diferenta A\\B: {rezultat.Count} elemente doar in A", "Rezultat", MessageBoxButton.OK, MessageBoxImage.Information);
+        }
+
+        private void btnDiferentaBA_Click(object sender, RoutedEventArgs e)
+        {
+            var rezultat = listaB.Except(listaA).ToList();
+            
+            listaRezultat = rezultat.Select(g => 
+                $"{g.Denumire} - {g.Brand} - {g.Pret:F2} lei - {g.GarantieLuni} luni"
+            ).ToList();
+            
+            paginaCurentaR = 1;
+            ActualizeazaPaginareR();
+
+            txtStatus.Text = $"Diferenta B\\A: {rezultat.Count} elemente";
+            MessageBox.Show($"Diferenta B\\A: {rezultat.Count} elemente doar in B", "Rezultat", MessageBoxButton.OK, MessageBoxImage.Information);
+        }
+
+        private void btnAgregate_Click(object sender, RoutedEventArgs e)
+        {
+            var reuniune = listaA.Union(listaB).ToList();
+
+            if (reuniune.Count == 0)
+            {
+                MessageBox.Show("Nu exista date pentru a calcula agregate!", "Info", MessageBoxButton.OK, MessageBoxImage.Information);
+                return;
+            }
+
+            int countA = listaA.Count;
+            int countB = listaB.Count;
+            int countReuniune = reuniune.Count;
+
+            decimal pretMediu = reuniune.Average(g => g.Pret);
+            double garantieMedie = reuniune.Average(g => g.GarantieLuni);
+            decimal maxPret = reuniune.Max(g => g.Pret);
+
+            int nrGarantie24 = reuniune.Count(g => g.GarantieLuni >= 24);
+
+            string brandAles = "Samsung";
+            int nrBrandAles = reuniune.Count(g => g.Brand.Equals(brandAles, StringComparison.OrdinalIgnoreCase));
+
+            string mesaj = $"STATISTICI AGREGATE\n\n" +
+                          $"Numar elemente:\n" +
+                          $"   Lista A: {countA}\n" +
+                          $"   Lista B: {countB}\n" +
+                          $"   Reuniune: {countReuniune}\n\n" +
+                          $"Statistici pret:\n" +
+                          $"   Pret mediu: {pretMediu:F2} lei\n" +
+                          $"   Pret maxim: {maxPret:F2} lei\n\n" +
+                          $"Statistici garantie:\n" +
+                          $"   Garantie medie: {garantieMedie:F2} luni\n" +
+                          $"   Nr. cu garantie >= 24 luni: {nrGarantie24}\n\n" +
+                          $"Brand:\n" +
+                          $"   Nr. cu brand '{brandAles}': {nrBrandAles}";
+
+            MessageBox.Show(mesaj, "Agregate", MessageBoxButton.OK, MessageBoxImage.Information);
+
+            listaRezultat = reuniune.Select(g => 
+                $"{g.Denumire} - {g.Brand} - {g.Pret:F2} lei - {g.GarantieLuni} luni"
+            ).ToList();
+
+            paginaCurentaR = 1;
+            ActualizeazaPaginareR();
+
+            txtStatus.Text = "Agregate calculate";
+        }
+    }
+}
